@@ -2,7 +2,7 @@
 #include <GL/glu.h>
 #include <GL/glut.h>
 
-static int shoulder = 0, elbow = 0;
+static int shoulder = 0, elbow = 0, finger = 0;
 
 void init(void) 
 {
@@ -22,8 +22,17 @@ void display(void)
    glutWireCube (1.0);
    glPopMatrix();
 
+   
    glTranslatef (1.0, 0.0, 0.0);
    glRotatef ((GLfloat) elbow, 0.0, 0.0, 1.0);
+   glTranslatef (1.0, 0.0, 0.0);
+   glPushMatrix();
+   glScalef (2.0, 0.4, 1.0);
+   glutWireCube (1.0);
+   glPopMatrix();
+
+   glTranslatef (1.0, 0.0, 0.0);
+   glRotatef ((GLfloat) finger, 0.0, 0.0, 1.0);
    glTranslatef (1.0, 0.0, 0.0);
    glPushMatrix();
    glScalef (2.0, 0.4, 1.0);
@@ -48,20 +57,28 @@ void reshape (int w, int h)
 void keyboard (unsigned char key, int x, int y)
 {
    switch (key) {
-      case `s':   /*  s key rotates at shoulder  */
+      case 's':   /*  s key rotates at shoulder  */
          shoulder = (shoulder + 5) % 360;
          glutPostRedisplay();
          break;
-      case `S':
+      case 'S':
          shoulder = (shoulder - 5) % 360;
          glutPostRedisplay();
          break;
-      case `e':  /*  e key rotates at elbow  */
+      case 'e':  /*  e key rotates at elbow  */
          elbow = (elbow + 5) % 360;
          glutPostRedisplay();
          break;
-      case `E':
+      case 'E':
          elbow = (elbow - 5) % 360;
+         glutPostRedisplay();
+         break;
+        case 'f':  /*  e key rotates at finger  */
+         finger= (finger + 5) % 360;
+         glutPostRedisplay();
+         break;
+      case 'F':
+         finger= (finger - 5) % 360;
          glutPostRedisplay();
          break;
       default:
