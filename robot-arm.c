@@ -2,7 +2,7 @@
 #include <GL/glu.h>
 #include <GL/glut.h>
 
-static int shoulder = 0, elbow = 0, finger = 0;
+static int shoulder = 0, elbow = 0, finger1 = 0, finger2 = 0;
 
 void init(void) 
 {
@@ -14,28 +14,39 @@ void display(void)
 {
    glClear (GL_COLOR_BUFFER_BIT);
    glPushMatrix();
+   //Criacao e manipulacao do braco
+   glTranslatef (-2.0, 0.0, 0.0); 
+   glRotatef ((GLfloat) shoulder, 0.0, 0.0, 1.0); 
    glTranslatef (-1.0, 0.0, 0.0);
-   glRotatef ((GLfloat) shoulder, 0.0, 0.0, 1.0);
-   glTranslatef (1.0, 0.0, 0.0);
    glPushMatrix();
-   glScalef (2.0, 0.4, 1.0);
+   glScalef (2.0, 0.5, 1.0);
    glutWireCube (1.0);
    glPopMatrix();
 
-   
+   //Criacao e manipulacao do antebraco
    glTranslatef (1.0, 0.0, 0.0);
    glRotatef ((GLfloat) elbow, 0.0, 0.0, 1.0);
    glTranslatef (1.0, 0.0, 0.0);
    glPushMatrix();
-   glScalef (2.0, 0.4, 1.0);
+   glScalef (2.0, 0.5, 1.0);
    glutWireCube (1.0);
    glPopMatrix();
 
-   glTranslatef (1.0, 0.0, 0.0);
-   glRotatef ((GLfloat) finger, 0.0, 0.0, 1.0);
-   glTranslatef (1.0, 0.0, 0.0);
+   //Dedo superior
+   glTranslatef (1.0, 0.25, 0.0);
+   glRotatef ((GLfloat) finger1, 0.0, 0.0, 1.0);
+   glTranslatef (0.5, 0.0, 0.0);
    glPushMatrix();
-   glScalef (2.0, 0.4, 1.0);
+   glScalef (1.0, 0.05, 1.0);
+   glutWireCube (1.0);
+   glPopMatrix();
+
+   //Dedo inferior
+   glTranslatef (-0.5, -0.25, 0.0);
+   glRotatef ((GLfloat) finger2, 0.0, 0.0, 1.0);
+   glTranslatef (0.5, -0.25, 0.0);
+   glPushMatrix();
+   glScalef (1.0, 0.05, 1.0);
    glutWireCube (1.0);
    glPopMatrix();
 
@@ -73,12 +84,20 @@ void keyboard (unsigned char key, int x, int y)
          elbow = (elbow - 5) % 360;
          glutPostRedisplay();
          break;
-        case 'f':  /*  e key rotates at finger  */
-         finger= (finger + 5) % 360;
+      case 'f':  /*  e key rotates at finger  */
+         finger1= (finger1 + 5) % 360;
          glutPostRedisplay();
          break;
       case 'F':
-         finger= (finger - 5) % 360;
+         finger1= (finger1 - 5) % 360;
+         glutPostRedisplay();
+         break;
+      case 'g':  /*  e key rotates at finger  */
+         finger2= (finger2 + 5) % 360;
+         glutPostRedisplay();
+         break;
+      case 'G':
+         finger2= (finger2 - 5) % 360;
          glutPostRedisplay();
          break;
       default:
