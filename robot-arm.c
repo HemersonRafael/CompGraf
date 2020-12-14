@@ -158,6 +158,17 @@ void keyboard (unsigned char key, int x, int y){
     finger3 = (finger3 - 5) % 360;
     glutPostRedisplay();
     break;
+  case 'r':
+    raioxz=raioxz+1;
+    glutPostRedisplay();
+    break;
+  case 'R':
+    raioxz=raioxz-1;
+    if(raioxz==0){
+      raioxz=1;
+    }
+    glutPostRedisplay();
+    break;
   case 27:
     exit(0);
     break;
