@@ -1,8 +1,19 @@
 #include <GL/glut.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "png_texture.h"
+
 
 #define PI 3.1415
+
+#define COORD_TEXTURA_BRACO 1.0
+#define COR_DO_BRACO 0.24,0.24,0.24,1.0
+#define TEXTURA_DO_BRACO "metal.png"
+
+#define COORD_TEXTURA_PLANO 1.0
+#define COR_DO_PLANO 0.52,0.52,0.78,1.0
+#define TEXTURA_DO_PLANO "montanhas.png"
 
 GLint WIDTH =800;
 GLint HEIGHT=600;
@@ -11,25 +22,32 @@ static int shoulder = 0, elbow = 0, finger1 = 0, finger2 = 0, finger3 = 0;
 
 GLfloat obs[3]={0.0,7.0,0.0};
 GLfloat look[3]={0.0,3.0,0.0};
+GLuint  textura_plano;
+GLuint textura_braco;
+
+GLshort texturas=0;
 GLfloat tetaxz=0;
 GLfloat raioxz=6;
+GLuint braco;
 
-void init(void){
-  glClearColor (0.0, 0.0, 0.0, 0.0);
-}
+GLfloat ctp[4][2]={
+  {-COORD_TEXTURA_PLANO,-COORD_TEXTURA_PLANO},
+  {+COORD_TEXTURA_PLANO,-COORD_TEXTURA_PLANO},
+  {+COORD_TEXTURA_PLANO,+COORD_TEXTURA_PLANO},
+  {-COORD_TEXTURA_PLANO,+COORD_TEXTURA_PLANO}
+};
 
-void display(void){
-  glClear (GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-  glPushMatrix();
 
-  /* calcula a posicao do observador */
-  obs[0]=raioxz*cos(2*PI*tetaxz/360);
-  obs[2]=raioxz*sin(2*PI*tetaxz/360);
-  gluLookAt(obs[0],obs[1],obs[2],look[0],look[1],look[2],0.0,1.0,0.0);
+
+void compoe_braco(void){
+  /* inicia a composicao do braco */
+  braco = glGenLists(1);
+  glNewList(braco, GL_COMPILE);
 
   /* origem posicionada no ombro */
   glTranslatef (-1.0, 0.0, 0.0);
   glRotatef ((GLfloat) shoulder, 0.0, 0.0, 1.0);
+
 
   /* origem posicionada no centro do braco */ 
   glTranslatef (1.0, 0.0, 0.0);
@@ -56,7 +74,7 @@ void display(void){
   glRotatef ((GLfloat) finger1, 0.0, 0.0, 1.0);
   glTranslatef (0.25, 0.0, 0.0);
   glScalef (0.5, 0.1, 0.33);
-  glColor3f(72.0, 61.0, 139.0);
+  glColor3f(107.0,35.0,142.0);
   glutSolidCube (1.0);
   glPopMatrix();
 
@@ -67,7 +85,7 @@ void display(void){
   glRotatef ((GLfloat) finger2, 0.0, 0.0, 1.0);
   glTranslatef (0.25, 0.0, 0.0);
 	glScalef (0.5, 0.1, 0.33);
-   glColor3f(72.0, 61.0, 139.0);
+  glColor3f(107.0,35.0,142.0);
   glutSolidCube (1.0);
   glPopMatrix();
 
@@ -76,10 +94,52 @@ void display(void){
   glRotatef ((GLfloat) finger3, 0.0, 0.0, 1.0);
   glTranslatef (0.25, 0.0, 0.0);
 	glScalef (0.5, 0.1, 0.33);
-   glColor3f(72.0, 61.0, 139.0);
+  glColor3f(107.0,35.0,142.0);
   glutSolidCube (1.0);
   glPopMatrix();
 
+  /* termina a composicao do braco*/
+  glEndList();
+}
+void display(void){
+  glEnable(GL_DEPTH_TEST);
+  glClear (GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+  glPushMatrix();
+
+  /* calcula a posicao do observador */
+  obs[0]=raioxz*cos(2*PI*tetaxz/360);
+  obs[2]=raioxz*sin(2*PI*tetaxz/360);
+  gluLookAt(obs[0],obs[1],obs[2],look[0],look[1],look[2],0.0,1.0,0.0);
+
+/* habilita/desabilita uso de texturas*/
+  if(texturas){
+    glEnable(GL_TEXTURE_2D);  
+  }
+  else{
+    glDisable(GL_TEXTURE_2D);
+  }
+  glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_DECAL);
+
+  //plano texturizado
+  glColor4f(COR_DO_PLANO);
+  glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+  glBindTexture(GL_TEXTURE_2D,textura_plano);
+  glBegin(GL_QUADS);
+  glTexCoord2fv(ctp[0]);  glVertex3f(-10,0,10);
+  glTexCoord2fv(ctp[1]);  glVertex3f(10,0,10);
+  glTexCoord2fv(ctp[2]);  glVertex3f(10,0,-10);
+  glTexCoord2fv(ctp[3]);  glVertex3f(-10,0,-10);
+  glEnd();
+
+  //braco texturizado
+  glTranslatef(0.0,2.0,-3.0);
+  glColor4f(COR_DO_BRACO);
+  glBindTexture(GL_TEXTURE_2D,textura_braco);
+  glCallList(braco);
+  glPopMatrix();
+  
+
+  compoe_braco();
   /* origem volta para o sistema de coordenadas original */
   glPopMatrix();
   glutSwapBuffers();
@@ -118,6 +178,10 @@ void special(int key, int x, int y){
 
 void keyboard (unsigned char key, int x, int y){
   switch (key) {
+  case 't':
+    texturas = !texturas;
+    glutPostRedisplay();
+    break;
   case 'a':
     shoulder = (shoulder + 5) % 360;
     glutPostRedisplay();
@@ -177,13 +241,29 @@ void keyboard (unsigned char key, int x, int y){
   }
 }
 
+void carregar_texturas(void){
+  textura_braco = png_texture_load(TEXTURA_DO_BRACO, NULL, NULL);
+  textura_plano = png_texture_load(TEXTURA_DO_PLANO, NULL, NULL);
+}
+
+void init(void){
+  glClearColor (1.0, 1.0, 1.0, 1.0);
+  glEnable(GL_DEPTH_TEST);
+  compoe_braco();
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+  carregar_texturas();
+  glShadeModel(GL_FLAT);
+  glEnable(GL_TEXTURE_2D);
+}
+
 int main(int argc, char** argv){
    
   glutInitWindowPosition(0, 0);
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_RGBA|GLUT_DEPTH|GLUT_DOUBLE|GLUT_ALPHA);
   glutInitWindowSize(WIDTH,HEIGHT);
-  glutCreateWindow ("GARRA");
+  glutCreateWindow ("BRACO GARRA");
   init ();
   glutDisplayFunc(display); 
   glutReshapeFunc(reshape);
