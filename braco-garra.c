@@ -4,7 +4,18 @@
 #include <math.h>
 #include "png_texture.h"
 
-
+/*
+Codigo feito para a disciplina de Computacao Grafica - Semestre 2020.6
+Projeto: Braco robotico 3D controlavel e com articulacoes
+Controles:
+- 'a' e 'A': Rotacoes no "ombro" do braco
+- 's' e 'S': Rotacoes no "cotovelo" do braco
+- 'd' e 'D': Rotacoes no dedo inferior do braco
+- 'f' e 'F': Rotacoes no dedo direito do braco
+- 'g' e 'G': Rotacoes no dedo esquerdo do braco
+- 'r' e 'R': Altera raio de rotacao na posicao da camera
+- 'UP', 'DOWN', 'LEFT' e 'RIGHT': Rotacionam camera
+*/
 #define PI 3.1415
 
 #define COORD_TEXTURA_BRACO 1.0
@@ -37,24 +48,21 @@ GLfloat ctp[4][2]={
   {-COORD_TEXTURA_PLANO,+COORD_TEXTURA_PLANO}
 };
 
-
-
 void compoe_braco(void){
   /* inicia a composicao do braco */
-  braco = glGenLists(1);
-  glNewList(braco, GL_COMPILE);
+  braco = glGenLists(1); //Retorna uma lista de exibicao vazia
+  glNewList(braco, GL_COMPILE); //Inicia a criacao do primeiro (e unico) elemento da display lit
 
   /* origem posicionada no ombro */
   glTranslatef (-1.0, 0.0, 0.0);
   glRotatef ((GLfloat) shoulder, 0.0, 0.0, 1.0);
-
 
   /* origem posicionada no centro do braco */ 
   glTranslatef (1.0, 0.0, 0.0);
   glPushMatrix();
   glScalef (2.0, 0.4, 1.0);
   glColor3f(0.0, 0.0, 128.0);
-  glutSolidCube (1.0);
+  glutSolidCube(1.0);
   glPopMatrix();
    
   /* origem posicionada no cotovelo */
@@ -107,8 +115,15 @@ void display(void){
   glPushMatrix();
 
   /* calcula a posicao do observador */
+  /* O movimento da camera corresponde a um movimento circular em torno do objeto */
   obs[0]=raioxz*cos(2*PI*tetaxz/360);
   obs[2]=raioxz*sin(2*PI*tetaxz/360);
+
+  /* 
+  obs[0],obs[1],obs[2] -> eyeX, eyeY, eyeZ -> Coordenadas x, y e z da posicao da camera
+  look[0],look[1],look[2] ->  centerx, centery, centerz -> Coordenadas x, y e z da posicao do alvo
+  0.0,1.0,0.0 -> upX, upY, upZ -> Vetor que estabelecem o vetor que aponta "para cima"
+  */
   gluLookAt(obs[0],obs[1],obs[2],look[0],look[1],look[2],0.0,1.0,0.0);
 
 /* habilita/desabilita uso de texturas*/
@@ -122,7 +137,7 @@ void display(void){
 
   //plano texturizado
   glColor4f(COR_DO_PLANO);
-  glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+  glPolygonMode( GL_FRONT_AND_BACK, GL_FILL);
   glBindTexture(GL_TEXTURE_2D,textura_plano);
   glBegin(GL_QUADS);
   glTexCoord2fv(ctp[0]);  glVertex3f(-10,0,10);
@@ -138,7 +153,7 @@ void display(void){
   glCallList(braco);
   glPopMatrix();
   
-
+  /* Chama funcao com objetos criados para o display */
   compoe_braco();
   /* origem volta para o sistema de coordenadas original */
   glPopMatrix();
@@ -264,7 +279,7 @@ int main(int argc, char** argv){
   glutInitDisplayMode(GLUT_RGBA|GLUT_DEPTH|GLUT_DOUBLE|GLUT_ALPHA);
   glutInitWindowSize(WIDTH,HEIGHT);
   glutCreateWindow ("BRACO GARRA");
-  init ();
+  init();
   glutDisplayFunc(display); 
   glutReshapeFunc(reshape);
   glutKeyboardFunc(keyboard);
